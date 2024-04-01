@@ -28,6 +28,8 @@ jobs:
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           tag_name: canary
+          delete_release: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: set the canary release version (main)
         if: github.ref == 'refs/heads/main'
