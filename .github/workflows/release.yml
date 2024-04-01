@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+  
 jobs:
   assets:
     name: Build and release assets
