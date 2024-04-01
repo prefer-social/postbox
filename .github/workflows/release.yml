@@ -25,7 +25,7 @@ jobs:
 
       - name: remove previous canary tag
         if: github.ref == 'refs/heads/main'
-        uses: dev-drprasad/delete-tag-and-release@v1.2
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           tag_name: canary
         
