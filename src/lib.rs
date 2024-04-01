@@ -24,8 +24,8 @@ async fn on_message(e: Bytes) -> Result<()> {
     let address = envelop.address.as_str();
     let letter = envelop.letter;
 
-    debug!(address);
-    debug!("{letter:?}");
+    tracing::debug!(address);
+    tracing::debug!("{letter:?}");
 
     let a = postman::deliver(address, letter).await?;
 
