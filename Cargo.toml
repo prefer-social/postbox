@@ -1,0 +1,31 @@
+[package]
+name = "postbox"
+authors = ["Seungjin Kim <seungjin@duck.com>"]
+description = "postbox - send letters"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1"
+base64 = "0.21.5"
+bytes = "1"
+spin-sdk = { git = "https://github.com/fermyon/spin-rust-sdk", branch = "main" }
+#spin-sdk = { path = "../../../rust/spin-rust-sdk" }
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = { version = "1.0.108", features = ["preserve_order"] }
+serde_derive = "1"
+chrono = { version = "0.4.31", features = ["serde"] }
+url = { version = "2.5.0", features = ["serde"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = [
+    "env-filter",
+    "fmt",
+    "std",
+] }
+rand = "0.8"
+sparrow = { git = "https://github.com/prefer-social/sparrow" branch = "main" }
+rsa = { version = "0.9.6", features = ["pem", "serde", "sha2"] }
+uuid = { version = "1", features = ["v4", "fast-rng"] }
