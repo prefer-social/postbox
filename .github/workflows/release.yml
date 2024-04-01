@@ -53,7 +53,6 @@ jobs:
         with:
           fail_on_unmatched_files: true
           generate_release_notes: true
-          tag_name: canary
           files: |
             target/wasm32-wasi/release/postbox.wasm
             checksums-${{ env.RELEASE_VERSION }}.txt
@@ -65,6 +64,7 @@ jobs:
         with:
           fail_on_unmatched_files: true
           generate_release_notes: true
+          tag_name: canary
           files: |
             target/wasm32-wasi/release/postbox.wasm
             checksums-${{ env.RELEASE_VERSION }}.txt
