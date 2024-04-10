@@ -1538,6 +1538,7 @@ dependencies = [
 [[package]]
 name = "sparrow"
 version = "0.1.0"
+source = "git+https://github.com/prefer-social/sparrow?branch=main#37096ab1b950b7bf4c9e31ec8e902ea180e3aaaa"
 dependencies = [
  "activitystreams-kinds",
  "anyhow",
