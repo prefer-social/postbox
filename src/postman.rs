@@ -69,8 +69,6 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
 
     tracing::debug!(sig_header);
 
-    // FIXME: Need to get INBOX url from actor request.
-
     let request = RequestBuilder::new(Method::Post, recipient_inbox) // TODO: recipient uri should get from actor.
         .header("Date", date)
         .header("Signature", sig_header)
