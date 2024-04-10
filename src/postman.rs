@@ -7,10 +7,9 @@ use rsa::signature::SignatureEncoding;
 use rsa::signature::Signer;
 use rsa::RsaPrivateKey;
 use serde_json::Value;
+use sparrow::utils::clean_last_slash_from_url;
 use sparrow::utils::get_current_time_in_rfc_1123;
 use spin_sdk::http::{self, IncomingResponse, Method, RequestBuilder};
-use spin_sdk::sqlite::Value as SV;
-use tracing::{debug, info};
 use url::Url;
 
 use sparrow::utils::get_inbox_from_actor;
@@ -18,36 +17,24 @@ use sparrow::utils::get_privatekey_with_actor_url;
 
 pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
     let me = letter.get("actor").unwrap().as_str().unwrap();
-    let my_actor = Url::parse(me).unwrap();
-    let user = my_actor
-        .path_segments()
-        .map(|c| c.collect::<Vec<_>>())
-        .unwrap()
-        .last()
-        .unwrap()
-        .clone();
 
     let recipient_actor = Url::parse(&address).unwrap();
     let recipient_server: &str = recipient_actor.host_str().unwrap();
     let recipient_inbox = get_inbox_from_actor(address.to_string()).await.unwrap();
 
-    let private_key_pem = get_privatekey_with_actor_url(&my_actor.to_string())
-        .await
-        .unwrap();
+    let private_key_pem = get_privatekey_with_actor_url(me.to_string()).await.unwrap();
     let date = get_current_time_in_rfc_1123().await;
     let content_type = "application/activity+json".to_string();
 
-    debug!("me -> {me}");
-    debug!("my_actor -> {my_actor}");
-    debug!("recipient_actor -> {recipient_actor}");
-    debug!("recipient_server -> {recipient_server}");
-    debug!("user -> {user}");
-    debug!("date -> {date}");
-    debug!("content_type -> {content_type}");
+    tracing::debug!("me -> {me}");
+    tracing::debug!("recipient_actor -> {recipient_actor}");
+    tracing::debug!("recipient_server -> {recipient_server}");
+    tracing::debug!("date -> {date}");
+    tracing::debug!("content_type -> {content_type}");
 
     // TODO: This should be created from activity_stream crate not from string literal.
 
-    debug!("request_body -> {letter}");
+    tracing::debug!("request_body -> {letter}");
 
     let mut hasher = Sha256::new();
     hasher.update(letter.to_string());
@@ -55,7 +42,7 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
         "SHA-256={}",
         general_purpose::STANDARD.encode(hasher.finalize())
     );
-    debug!("digest --> {digest}");
+    tracing::debug!("digest --> {digest}");
 
     let hostname = recipient_server.to_string();
     // FIXME: This should be get from actor info
@@ -64,7 +51,7 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
         "(request-target): post {}\nhost: {}\ndate: {}\ndigest: {}\ncontent-type: {}",
         inbox_path, hostname, date, digest, content_type
     );
-    debug!("signature_string --> \n{signature_string}");
+    tracing::debug!("signature_string --> \n{signature_string}");
 
     // The signature string is constructed using the values of the HTTP headers defined in headers, joined by newlines. Typically, you will want to include the request target, as well as the host and the date. Mastodon assumes Date: header if none are provided. For the above GET request, to generate a Signature: with headers="(request-target) host date"
     // https://github.com/RustCrypto/RSA/issues/341
@@ -77,10 +64,10 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
 
     let sig_header = format!(
         r#"keyId="{}#main-key",algorithm="rsa-sha256",headers="(request-target) host date digest content-type",signature="{}""#,
-        my_actor, encoded_signature
+        me, encoded_signature
     );
 
-    debug!(sig_header);
+    tracing::debug!(sig_header);
 
     // FIXME: Need to get INBOX url from actor request.
 
@@ -96,8 +83,8 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
     let status = response.status();
 
     let body = String::from_utf8(response.into_body().await.unwrap()).unwrap();
-    debug!("status --> {status}");
-    debug!("response body -->\n{body}");
+    tracing::debug!("status --> {status}");
+    tracing::debug!("response body -->\n{body}");
 
     Ok(status)
 }
