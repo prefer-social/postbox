@@ -15,14 +15,16 @@ use url::Url;
 use sparrow::utils::get_inbox_from_actor;
 use sparrow::utils::get_privatekey_with_actor_url;
 
-pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
+pub async fn deliver(actor: &str, letter: Value) -> Result<u16> {
     let me = letter.get("actor").unwrap().as_str().unwrap();
 
-    let recipient_actor = Url::parse(&address).unwrap();
+    let recipient_actor = Url::parse(&actor).unwrap();
     let recipient_server: &str = recipient_actor.host_str().unwrap();
-    let recipient_inbox = get_inbox_from_actor(address.to_string()).await.unwrap();
+    let recipient_inbox =
+        get_inbox_from_actor(actor.to_string()).await.unwrap();
 
-    let private_key_pem = get_privatekey_with_actor_url(me.to_string()).await.unwrap();
+    let private_key_pem =
+        get_privatekey_with_actor_url(me.to_string()).await.unwrap();
     let date = get_current_time_in_rfc_1123().await;
     let content_type = "application/activity+json".to_string();
 
@@ -55,12 +57,15 @@ pub async fn deliver(address: &str, letter: Value) -> Result<u16> {
 
     // The signature string is constructed using the values of the HTTP headers defined in headers, joined by newlines. Typically, you will want to include the request target, as well as the host and the date. Mastodon assumes Date: header if none are provided. For the above GET request, to generate a Signature: with headers="(request-target) host date"
     // https://github.com/RustCrypto/RSA/issues/341
-    let private_key =
-        RsaPrivateKey::from_pkcs8_pem(&private_key_pem).expect("RsaPrivateKey creation failed");
+    let private_key = RsaPrivateKey::from_pkcs8_pem(&private_key_pem)
+        .expect("RsaPrivateKey creation failed");
     let signing_key: SigningKey<Sha256> = SigningKey::new(private_key);
-    let signature =
-        <SigningKey<Sha256> as Signer<Signature>>::sign(&signing_key, signature_string.as_bytes());
-    let encoded_signature = general_purpose::STANDARD.encode(signature.to_bytes().as_ref());
+    let signature = <SigningKey<Sha256> as Signer<Signature>>::sign(
+        &signing_key,
+        signature_string.as_bytes(),
+    );
+    let encoded_signature =
+        general_purpose::STANDARD.encode(signature.to_bytes().as_ref());
 
     let sig_header = format!(
         r#"keyId="{}#main-key",algorithm="rsa-sha256",headers="(request-target) host date digest content-type",signature="{}""#,

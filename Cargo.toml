@@ -26,7 +26,7 @@ tracing-subscriber = { version = "0.3.18", features = [
     "std",
 ] }
 rand = "0.8"
-sparrow = { git = "https://github.com/prefer-social/sparrow", branch = "main" }
-#sparrow = { path = "../sparrow" }
+#sparrow = { git = "https://github.com/prefer-social/sparrow", branch = "main" }
+sparrow = { path = "../sparrow" }
 rsa = { version = "0.9.6", features = ["pem", "serde", "sha2"] }
 uuid = { version = "1", features = ["v4", "fast-rng"] }
