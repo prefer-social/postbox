@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 anyhow = "1"
-base64 = "0.21.5"
+base64 = "0.22"
 bytes = "1"
 spin-sdk = { git = "https://github.com/fermyon/spin-rust-sdk", branch = "main" }
 #spin-sdk = { path = "../../../rust/spin-rust-sdk" }

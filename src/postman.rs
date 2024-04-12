@@ -7,11 +7,10 @@ use rsa::signature::SignatureEncoding;
 use rsa::signature::Signer;
 use rsa::RsaPrivateKey;
 use serde_json::Value;
-use sparrow::utils::clean_last_slash_from_url;
-use sparrow::utils::get_current_time_in_rfc_1123;
 use spin_sdk::http::{self, IncomingResponse, Method, RequestBuilder};
 use url::Url;
 
+use sparrow::utils::get_current_time_in_rfc_1123;
 use sparrow::utils::get_inbox_from_actor;
 use sparrow::utils::get_privatekey_with_actor_url;
 
@@ -48,7 +47,12 @@ pub async fn deliver(actor: &str, letter: Value) -> Result<u16> {
 
     let hostname = recipient_server.to_string();
     // FIXME: This should be get from actor info
-    let inbox_path = format!("{}/inbox", recipient_actor.path());
+    //let inbox_path = format!("{}/inbox", recipient_actor.path());
+    let inbox_path = Url::parse(recipient_inbox.as_str())
+        .unwrap()
+        .path()
+        .to_string();
+    tracing::debug!("inbox_path ---!!---> {}", inbox_path);
     let signature_string = format!(
         "(request-target): post {}\nhost: {}\ndate: {}\ndigest: {}\ncontent-type: {}",
         inbox_path, hostname, date, digest, content_type
